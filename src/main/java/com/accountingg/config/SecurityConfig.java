@@ -13,6 +13,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    public static final String[] SWAGGER_API_PATTERNS = {
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/api/v2/api-docs/**",
+            "/v2/api-docs/**"
+    };
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth, PasswordEncoder passwordEncoder, DefaultUserDetailsService detailsService) throws Exception {
         auth.userDetailsService(detailsService)
@@ -24,6 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/public/**").permitAll()
+                .antMatchers(SWAGGER_API_PATTERNS).permitAll()
                 .anyRequest().authenticated()
                 .and().cors().disable();
     }

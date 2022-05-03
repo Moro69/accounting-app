@@ -1,4 +1,4 @@
-package com.accountingg.config;
+package com.accountingg.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;

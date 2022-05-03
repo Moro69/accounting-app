@@ -1,4 +1,4 @@
-package com.accountingg.config;
+package com.accountingg.filter;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
