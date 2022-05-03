@@ -1,3 +1,3 @@
 FROM openjdk:11
-COPY target/demo-0.0.1-SNAPSHOT.jar demo.jar
-ENTRYPOINT ["java","-jar","/demo.jar"]
+COPY target/accountingg-0.0.1-SNAPSHOT.jar accountingg.jar
+ENTRYPOINT ["java","-jar","/accountingg.jar"]
