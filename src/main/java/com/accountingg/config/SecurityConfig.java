@@ -1,5 +1,6 @@
 package com.accountingg.config;
 
+import com.accountingg.entity.UserRole;
 import com.accountingg.service.DefaultUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -31,9 +32,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/api/public/**").permitAll()
                 .antMatchers(SWAGGER_API_PATTERNS).permitAll()
+                .antMatchers("/api/public/**").permitAll()
+                .antMatchers("/api/secured/**").hasAuthority(UserRole.ROLE_USER.getAuthority())
                 .anyRequest().authenticated()
-                .and().cors().disable();
+                .and()
+                .httpBasic();
     }
 }
