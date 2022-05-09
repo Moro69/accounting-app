@@ -1,6 +1,7 @@
 package com.accountingg.service;
 
 import com.accountingg.entity.User;
+import com.accountingg.entity.WalletOperationType;
 import com.accountingg.mapper.WalletMapper;
 import com.accountingg.model.CreateWalletRequest;
 import com.accountingg.model.UpdateWalletRequest;
@@ -20,6 +21,7 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
     private final WalletMapper walletMapper;
+    private final WalletOperationService walletOperationService;
 
     public List<WalletDto> findAll(User user) {
         return walletRepository.findAllByUserId(user.getId()).stream()
@@ -39,6 +41,8 @@ public class WalletService {
 
         walletRepository.save(wallet);
 
+        walletOperationService.addOperation(wallet, "Wallet creation", request.getBalance(), WalletOperationType.INCOME);
+
         return walletMapper.toDto(wallet);
     }
 
@@ -46,7 +50,6 @@ public class WalletService {
         var existing = walletRepository.findByIdAndUserId(walletId, requester.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        existing.setBalance(request.getBalance());
         existing.setName(request.getName());
 
         walletRepository.save(existing);
@@ -60,5 +63,22 @@ public class WalletService {
         }
 
         walletRepository.deleteById(id);
+    }
+
+    public WalletDto addOperation(long id, Double value, WalletOperationType type, String description, User requester) {
+        var wallet = walletRepository.findByIdAndUserId(id, requester.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (WalletOperationType.INCOME.equals(type)) {
+            wallet.setBalance(wallet.getBalance() + value);
+        } else {
+            wallet.setBalance(wallet.getBalance() - value);
+        }
+
+        walletRepository.save(wallet);
+
+        walletOperationService.addOperation(wallet, description, value, type);
+
+        return walletMapper.toDto(wallet);
     }
 }
