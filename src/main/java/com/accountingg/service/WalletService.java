@@ -6,12 +6,15 @@ import com.accountingg.mapper.WalletMapper;
 import com.accountingg.model.CreateWalletRequest;
 import com.accountingg.model.UpdateWalletRequest;
 import com.accountingg.model.WalletDto;
+import com.accountingg.model.WalletOperationRequest;
 import com.accountingg.repository.WalletRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,16 +39,27 @@ public class WalletService {
 
     }
 
+    @Transactional
     public WalletDto add(CreateWalletRequest request, User requester) {
         var wallet = walletMapper.toEntity(request, requester);
 
         walletRepository.save(wallet);
 
-        walletOperationService.addOperation(wallet, "Wallet creation", request.getBalance(), WalletOperationType.INCOME);
+        addOperation(request.getBalance(), requester, wallet.getId());
 
         return walletMapper.toDto(wallet);
     }
 
+    private void addOperation(Double value, User requester, Long walletId) {
+        var operationRequest = new WalletOperationRequest();
+        operationRequest.setDate(Instant.now());
+        operationRequest.setDescription("Wallet creation");
+        operationRequest.setValue(value);
+
+        walletOperationService.addIncome(walletId, operationRequest, requester);
+    }
+
+    @Transactional
     public WalletDto update(long walletId, UpdateWalletRequest request, User requester) {
         var existing = walletRepository.findByIdAndUserId(walletId, requester.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -57,28 +71,12 @@ public class WalletService {
         return walletMapper.toDto(existing);
     }
 
+    @Transactional
     public void deleteById(long id, User user) {
         if(!walletRepository.existsByIdAndUserId(id, user.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         walletRepository.deleteById(id);
-    }
-
-    public WalletDto addOperation(long id, Double value, WalletOperationType type, String description, User requester) {
-        var wallet = walletRepository.findByIdAndUserId(id, requester.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        if (WalletOperationType.INCOME.equals(type)) {
-            wallet.setBalance(wallet.getBalance() + value);
-        } else {
-            wallet.setBalance(wallet.getBalance() - value);
-        }
-
-        walletRepository.save(wallet);
-
-        walletOperationService.addOperation(wallet, description, value, type);
-
-        return walletMapper.toDto(wallet);
     }
 }

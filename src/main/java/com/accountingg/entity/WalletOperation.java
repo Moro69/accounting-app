@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.Instant;
 
@@ -32,8 +33,11 @@ public class WalletOperation {
     private Double value;
 
     @Column
-    @CreationTimestamp
     private Instant date;
+
+    @Column(name = "created_date")
+    @CreationTimestamp
+    private Instant createdDate;
 
     @Column
     private String description;
@@ -41,4 +45,8 @@ public class WalletOperation {
     @ManyToOne
     @JoinColumn(name = "wallet_id")
     private Wallet wallet;
+
+    @OneToOne
+    @JoinColumn(name = "expense_category_id")
+    private ExpenseCategory expenseCategory;
 }
