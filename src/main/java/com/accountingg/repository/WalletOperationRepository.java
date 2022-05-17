@@ -9,4 +9,6 @@ import java.util.List;
 public interface WalletOperationRepository extends JpaRepository<WalletOperation, Long> {
 
     List<WalletOperation> findAllByWalletIdAndWalletUserIdAndTypeOrderByDateDesc(Long walletId, Long userId, WalletOperationType type);
+
+    void deleteAllByWalletId(long walletId);
 }

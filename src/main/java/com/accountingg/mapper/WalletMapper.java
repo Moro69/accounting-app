@@ -13,8 +13,8 @@ public interface WalletMapper {
     WalletDto toDto(Wallet wallet);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", source = "request.name")
     @Mapping(target = "balance", source = "request.balance")
+    @Mapping(target = "name", source = "request.name")
     @Mapping(target = "currency", source = "request.currency")
     @Mapping(target = "user.id", source = "user.id")
     Wallet toEntity(CreateWalletRequest request, User user);

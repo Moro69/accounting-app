@@ -4,7 +4,6 @@ import com.accountingg.entity.User;
 import com.accountingg.model.CreateWalletRequest;
 import com.accountingg.model.UpdateWalletRequest;
 import com.accountingg.model.WalletDto;
-import com.accountingg.service.WalletOperationService;
 import com.accountingg.service.WalletService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -28,11 +27,9 @@ import java.util.List;
 public class WalletController {
 
     private final WalletService walletService;
-    private final WalletOperationService walletOperationService;
 
-    public WalletController(WalletService walletService, WalletOperationService walletOperationService) {
+    public WalletController(WalletService walletService) {
         this.walletService = walletService;
-        this.walletOperationService = walletOperationService;
     }
 
     @GetMapping
