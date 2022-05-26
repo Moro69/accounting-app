@@ -1,8 +1,10 @@
 package com.accountingg.service;
 
 import com.accountingg.entity.User;
+import com.accountingg.entity.WalletOperation;
 import com.accountingg.entity.WalletOperationType;
 import com.accountingg.mapper.WalletOperationMapper;
+import com.accountingg.model.DateRange;
 import com.accountingg.model.WalletExpenseRequest;
 import com.accountingg.model.WalletOperationDto;
 import com.accountingg.model.WalletOperationRequest;
@@ -25,8 +27,16 @@ public class WalletOperationService {
     private final WalletOperationMapper mapper;
     private final ExpenseCategoryRepository expenseCategoryRepository;
 
-    public List<WalletOperationDto> findAllByType(Long walletId, WalletOperationType type, User user) {
-        return repository.findAllByWalletIdAndWalletUserIdAndTypeOrderByDateDesc(walletId, user.getId(), type).stream()
+    public List<WalletOperationDto> findAllByType(Long walletId, WalletOperationType type, DateRange range, User user) {
+        List<WalletOperation> operations;
+
+        if (range != null && range.getFrom() != null && range.getTo() != null) {
+            operations = repository.findAllByWalletIdAndWalletUserIdAndTypeAndDateBetweenOrderByDateDesc(walletId, user.getId(), type, range.getFrom(), range.getTo());
+        } else {
+            operations = repository.findAllByWalletIdAndWalletUserIdAndTypeOrderByDateDesc(walletId, user.getId(), type);
+        }
+
+        return operations.stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
     }
