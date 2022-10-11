@@ -1,5 +1,6 @@
 package com.accountingg.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -31,18 +32,22 @@ public class User implements UserDetails {
     private String email;
 
     @Column
+    @JsonIgnore
     private String password;
 
     @Column(name = "created_date")
+    @JsonIgnore
     @CreationTimestamp
     private Instant createdDate;
 
     @Column(name = "updated_date")
+    @JsonIgnore
     @UpdateTimestamp
     private Instant updatedDate;
 
     @Column
     @Enumerated(EnumType.STRING)
+    @JsonIgnore
     private UserRole role;
 
     @Override

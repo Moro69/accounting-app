@@ -1,10 +1,15 @@
 package com.accountingg.service;
 
 import com.accountingg.entity.ExpenseCategory;
+import com.accountingg.entity.User;
+import com.accountingg.entity.UserRole;
 import com.accountingg.repository.ExpenseCategoryRepository;
+import com.accountingg.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -12,13 +17,33 @@ public class InitService {
 
     private final ExpenseCategoryRepository expenseCategoryRepository;
 
-    public InitService(ExpenseCategoryRepository expenseCategoryRepository) {
+    private final UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public InitService(ExpenseCategoryRepository expenseCategoryRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.expenseCategoryRepository = expenseCategoryRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostConstruct
     public void init() {
         addExpenseCategories();
+
+        initAdminUser();
+    }
+
+    private void initAdminUser() {
+        if (!userRepository.existsByRole(UserRole.ROLE_ADMIN)) {
+            final User user = new User();
+            user.setEmail("admin@admin");
+            user.setRole(UserRole.ROLE_ADMIN);
+            user.setPassword(passwordEncoder.encode("admin123"));
+            user.setCreatedDate(Instant.now());
+
+            userRepository.save(user);
+        }
     }
 
     private void addExpenseCategories() {
